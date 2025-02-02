@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "60206258249",
+    "project_id": "destiantionteller-dis-manage",
+    "storage_bucket": "destiantionteller-dis-manage.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:60206258249:android:9f1a88d79fcba76c2d0798",
+        "android_client_info": {
+          "package_name": "com.example.dis_manag"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA9tGVOW_8LEbRDkH7DeWb8DQL5G6h0N9o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
