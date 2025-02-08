@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "60206258249",
+    "firebase_url": "https://destiantionteller-dis-manage-default-rtdb.firebaseio.com",
     "project_id": "destiantionteller-dis-manage",
     "storage_bucket": "destiantionteller-dis-manage.firebasestorage.app"
   },

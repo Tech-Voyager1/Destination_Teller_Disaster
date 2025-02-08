@@ -1,13 +1,11 @@
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
-void main() {
-  runApp(MapScreen());
-}
-
 class MapScreen extends StatefulWidget {
-  const MapScreen({super.key});
+  final String user_name;
+  const MapScreen(this.user_name);
 
   @override
   State<MapScreen> createState() => _MapScreenState();
@@ -16,10 +14,44 @@ class MapScreen extends StatefulWidget {
 class _MapScreenState extends State<MapScreen> {
   LatLng? _tappedLocation;
   final MapController _mapController = MapController();
+  late DatabaseReference _reference;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _reference = FirebaseDatabase.instance.ref(widget.user_name);
+  }
+
+  Future<void> saveLocation(LatLng? tappedLocation) async {
+    if (tappedLocation == null) return;
+    String lat = tappedLocation.latitude.toString();
+    String lng = tappedLocation.longitude.toString();
+    try {
+      DatabaseEvent event = await _reference.once();
+      int count =
+          event.snapshot.children.length + 1; // Get existing nodes count
+      String locationKey = "location$count"; // Generate dynamic key
+
+      await _reference.child(locationKey).set({
+        "Latitude": lat,
+        "Longitude": lng,
+      });
+
+      print("Location saved as $locationKey");
+    } catch (e) {
+      print("Error saving location: $e");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    print(widget.user_name);
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        leading: Icon(Icons.settings_accessibility),
+      ),
       body: FlutterMap(
         mapController: _mapController,
         options: MapOptions(
@@ -31,6 +63,7 @@ class _MapScreenState extends State<MapScreen> {
                 print("object");
                 _tappedLocation = point;
                 _mapController.moveAndRotate(_tappedLocation!, 13, 0);
+                saveLocation(_tappedLocation);
                 print(_tappedLocation);
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(

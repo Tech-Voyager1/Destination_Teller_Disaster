@@ -46,6 +46,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '60206258249',
     projectId: 'destiantionteller-dis-manage',
     authDomain: 'destiantionteller-dis-manage.firebaseapp.com',
+    databaseURL: 'https://destiantionteller-dis-manage-default-rtdb.firebaseio.com',
     storageBucket: 'destiantionteller-dis-manage.firebasestorage.app',
   );
 
@@ -54,6 +55,7 @@ class DefaultFirebaseOptions {
     appId: '1:60206258249:android:9f1a88d79fcba76c2d0798',
     messagingSenderId: '60206258249',
     projectId: 'destiantionteller-dis-manage',
+    databaseURL: 'https://destiantionteller-dis-manage-default-rtdb.firebaseio.com',
     storageBucket: 'destiantionteller-dis-manage.firebasestorage.app',
   );
 
@@ -62,6 +64,7 @@ class DefaultFirebaseOptions {
     appId: '1:60206258249:ios:33220774ea2b4eed2d0798',
     messagingSenderId: '60206258249',
     projectId: 'destiantionteller-dis-manage',
+    databaseURL: 'https://destiantionteller-dis-manage-default-rtdb.firebaseio.com',
     storageBucket: 'destiantionteller-dis-manage.firebasestorage.app',
     iosBundleId: 'com.example.disManag',
   );
@@ -71,6 +74,7 @@ class DefaultFirebaseOptions {
     appId: '1:60206258249:ios:33220774ea2b4eed2d0798',
     messagingSenderId: '60206258249',
     projectId: 'destiantionteller-dis-manage',
+    databaseURL: 'https://destiantionteller-dis-manage-default-rtdb.firebaseio.com',
     storageBucket: 'destiantionteller-dis-manage.firebasestorage.app',
     iosBundleId: 'com.example.disManag',
   );
@@ -81,6 +85,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '60206258249',
     projectId: 'destiantionteller-dis-manage',
     authDomain: 'destiantionteller-dis-manage.firebaseapp.com',
+    databaseURL: 'https://destiantionteller-dis-manage-default-rtdb.firebaseio.com',
     storageBucket: 'destiantionteller-dis-manage.firebasestorage.app',
   );
+
 }
