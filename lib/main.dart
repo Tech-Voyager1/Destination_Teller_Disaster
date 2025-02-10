@@ -1,3 +1,4 @@
+import 'package:dis_manag/mapScreen.dart';
 import 'package:dis_manag/signIn.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';

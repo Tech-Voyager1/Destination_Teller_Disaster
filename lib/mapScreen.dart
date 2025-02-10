@@ -15,12 +15,14 @@ class _MapScreenState extends State<MapScreen> {
   LatLng? _tappedLocation;
   final MapController _mapController = MapController();
   late DatabaseReference _reference;
+  bool state = false;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    _reference = FirebaseDatabase.instance.ref(widget.user_name);
+    _reference = FirebaseDatabase.instance
+        .ref(widget.user_name.replaceAll('.', '_').replaceAll('\$', '_'));
   }
 
   Future<void> saveLocation(LatLng? tappedLocation) async {
@@ -52,60 +54,133 @@ class _MapScreenState extends State<MapScreen> {
         backgroundColor: Colors.transparent,
         leading: Icon(Icons.settings_accessibility),
       ),
-      body: FlutterMap(
-        mapController: _mapController,
-        options: MapOptions(
-          center: LatLng(11.509364, 78.128928),
-          zoom: 13,
-          onTap: (tapPosition, point) {
-            setState(
-              () {
-                print("object");
-                _tappedLocation = point;
-                _mapController.moveAndRotate(_tappedLocation!, 13, 0);
-                saveLocation(_tappedLocation);
-                print(_tappedLocation);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Center(
-                        child: Text(_tappedLocation.toString(),
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontFamily: "Sans",
-                              fontSize: 18,
-                            ))),
-                    duration: Duration(milliseconds: 1500),
-                    padding: EdgeInsets.symmetric(vertical: 25),
-                    backgroundColor: Colors.purpleAccent,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(20),
-                            topRight: Radius.circular(20))),
+      body: Stack(children: [
+        FlutterMap(
+          mapController: _mapController,
+          options: MapOptions(
+            center: LatLng(11.509364, 78.128928),
+            zoom: 13,
+            onTap: (tapPosition, point) {
+              setState(
+                () {
+                  print("object");
+                  _tappedLocation = point;
+                  _mapController.moveAndRotate(_tappedLocation!, 13, 0);
+                  saveLocation(_tappedLocation);
+                  print(_tappedLocation);
+                  // ScaffoldMessenger.of(context).showSnackBar(
+                  //   SnackBar(
+                  //     content: Center(
+                  //         child: Text(_tappedLocation.toString(),
+                  //             style: TextStyle(
+                  //               color: Colors.white,
+                  //               // fontFamily: "",
+                  //               fontSize: 18,
+                  //             ))),
+                  //     duration: Duration(milliseconds: 1500),
+                  //     padding: EdgeInsets.symmetric(vertical: 25),
+                  //     backgroundColor: Colors.purpleAccent,
+                  //     shape: RoundedRectangleBorder(
+                  //         borderRadius: BorderRadius.only(
+                  //             topLeft: Radius.circular(20),
+                  //             topRight: Radius.circular(20))),
+                  //   ),
+                  // );
+                  state = true;
+                },
+              );
+              // Print the latitude and longitude
+              print(
+                  'Tapped Location: Latitude = ${point.latitude}, Longitude = ${point.longitude}');
+            },
+          ),
+          children: [
+            TileLayer(
+              urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+              userAgentPackageName: 'com.example.app', // Required for OSM
+            ),
+            if (_tappedLocation != null)
+              MarkerLayer(
+                markers: [
+                  Marker(
+                    point: _tappedLocation!,
+                    builder: (ctx) =>
+                        Icon(Icons.location_pin, color: Colors.red),
                   ),
-                );
-              },
+                ],
+              ),
+          ],
+        ),
+        // if (state == true)
+        //   Column(
+        //     mainAxisAlignment: MainAxisAlignment.end,
+        //     children: [
+        //       Container(
+        //         width: double.infinity,
+        //         height: 350,
+        //         decoration: BoxDecoration(
+        //             color: Color(0xffdcbdf6),
+        //             borderRadius: BorderRadius.only(
+        //                 topLeft: Radius.circular(30),
+        //                 topRight: Radius.circular(30))),
+        //       ),
+        //     ],
+        //   ),
+        DraggableScrollableSheet(
+          initialChildSize: 0.1, // Initial height (10% of screen)
+          minChildSize: 0.1, // Minimum height when dragged down
+          maxChildSize: 0.5, // Maximum height when dragged up
+          builder: (context, scrollController) {
+            return Container(
+              decoration: BoxDecoration(
+                color: Color(0xffdcbdf6),
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(30),
+                  topRight: Radius.circular(30),
+                ),
+              ),
+              child: ListView(
+                controller: scrollController, // Enables scrollable content
+                padding: EdgeInsets.all(16),
+                children: [
+                  Center(
+                    child: Container(
+                      width: 50,
+                      height: 5,
+                      margin: EdgeInsets.only(bottom: 10),
+                      decoration: BoxDecoration(
+                        color: Colors.grey,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  ),
+                  Text(
+                    "Location Details",
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  if (_tappedLocation != null)
+                    Text(
+                      "Latitude: ${_tappedLocation!.latitude.toStringAsFixed(4)}\n"
+                      "Longitude: ${_tappedLocation!.longitude.toStringAsFixed(4)}",
+                      style: TextStyle(fontSize: 16),
+                    ),
+                  SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: () {
+                      // Add your action here
+                    },
+                    child: Text("Confirm Location"),
+                  ),
+                ],
+              ),
             );
-            // Print the latitude and longitude
-            print(
-                'Tapped Location: Latitude = ${point.latitude}, Longitude = ${point.longitude}');
           },
         ),
-        children: [
-          TileLayer(
-            urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-            userAgentPackageName: 'com.example.app', // Required for OSM
-          ),
-          if (_tappedLocation != null)
-            MarkerLayer(
-              markers: [
-                Marker(
-                  point: _tappedLocation!,
-                  builder: (ctx) => Icon(Icons.location_pin, color: Colors.red),
-                ),
-              ],
-            ),
-        ],
-      ),
+      ]),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           // // Action to perform when the FAB is pressed
