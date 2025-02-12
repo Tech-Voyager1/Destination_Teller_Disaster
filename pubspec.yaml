@@ -39,6 +39,7 @@ dependencies:
   location: ^5.0.0
   http: ^0.13.5
   geolocator: ^13.0.1
+  icons_plus: ^5.0.0
   
   flutter_osm_plugin: ^0.70.4
 
@@ -50,6 +51,7 @@ dependencies:
   #google_fonts: ^4.0.4
   fluttertoast: ^8.2.10
   firebase_database: ^11.3.2
+
   
   
 
@@ -76,6 +78,10 @@ flutter:
     - family: Poppins
       fonts:
         - asset: asset/fonts/Poppins-Regular.ttf
+
+  assets:
+    - asset/images/
+    # - images/a_dot_ham.jpeg
         # - asset: asset/fonts/Poppins-Bold.ttf
   #   - family: Schyler
   #     fonts:

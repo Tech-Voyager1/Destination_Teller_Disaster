@@ -23,10 +23,12 @@ class _SignInState extends State<SignIn> {
   Widget build(BuildContext context) {
     return Scaffold(
       //backgroundColor: Color(0xffbe77fb),
+      resizeToAvoidBottomInset:
+          true, // This automatically resizes when keyboard appears
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFF8E2DE2), Color(0xFF4A00E0)], // Violet shades
+            colors: [Colors.purple, Colors.pinkAccent], // Violet shades
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -55,7 +57,7 @@ class _SignInState extends State<SignIn> {
               height: 500,
               width: double.infinity,
               decoration: BoxDecoration(
-                  color: Color(0xffdcbdf6),
+                  color: const Color.fromARGB(255, 214, 172, 207),
                   borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(25),
                       topRight: Radius.circular(25))),
@@ -184,16 +186,16 @@ class _SignInState extends State<SignIn> {
                         email = _emailController.text.trim();
                         pass = _passController.text.trim();
                         print("$email+$pass");
-                        Future<User?> username =
-                            _auth.signInUserWithEmailAndPassword(email, pass);
-                        print(username);
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    SignIn())); //MapScreen(email)));
+                        // Future<User?> username =
+                        //     _auth.signInUserWithEmailAndPassword(email, pass);
+                        // print(username);
+                        signInUser(context, email, pass);
+                        // Navigator.push(
+                        //     context,
+                        //     MaterialPageRoute(
+                        //         builder: (context) => MapScreen(email)));
                       },
-                      color: const Color.fromARGB(255, 39, 19, 73),
+                      color: const Color.fromARGB(255, 92, 13, 81),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20)),
                       child: Text(
@@ -213,6 +215,45 @@ class _SignInState extends State<SignIn> {
         ),
       ),
     );
+  }
+
+  Future<void> signInUser(
+      BuildContext context, String email, String pass) async {
+    try {
+      User? user = await _auth.signInUserWithEmailAndPassword(email, pass);
+
+      if (user != null) {
+        // Successful login
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => MapScreen(email),
+          ),
+        );
+      }
+      print(user);
+      print(user);
+    } on FirebaseAuthException catch (e) {
+      String errorMessage = "Login failed. Please try again.";
+      print(e.code);
+      print(e.code);
+      if (e.code == 'user-not-found') {
+        errorMessage = "User does not exist. Please sign up.";
+      } else if (e.code == 'wrong-password') {
+        errorMessage = "Incorrect password. Try again.";
+      } else if (e.code == 'invalid-email') {
+        errorMessage = "Invalid email format.";
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(errorMessage),
+          backgroundColor: Colors.redAccent,
+          behavior: SnackBarBehavior.floating,
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
   }
 
   @override
