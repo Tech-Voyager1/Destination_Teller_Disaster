@@ -21,17 +21,22 @@ class _SignInState extends State<SignIn> {
   final TextEditingController _passController = TextEditingController();
   @override
   Widget build(BuildContext context) {
+    Color text = Color.fromARGB(255, 0, 0, 0);
+    Color submit = Color(0xffe46b10);
+    Color textField = Color.fromARGB(255, 213, 212, 219);
+    LinearGradient radial = LinearGradient(
+      colors: [Color(0xfffbb448), Color(0xffe46b10)],
+      stops: [0.0, 1.0],
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+    );
     return Scaffold(
       //backgroundColor: Color(0xffbe77fb),
       resizeToAvoidBottomInset:
           true, // This automatically resizes when keyboard appears
       body: Container(
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Colors.purple, Colors.pinkAccent], // Violet shades
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
+          gradient: radial,
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.end,
@@ -57,7 +62,7 @@ class _SignInState extends State<SignIn> {
               height: 500,
               width: double.infinity,
               decoration: BoxDecoration(
-                  color: const Color.fromARGB(255, 214, 172, 207),
+                  color: textField,
                   borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(25),
                       topRight: Radius.circular(25))),
@@ -69,7 +74,7 @@ class _SignInState extends State<SignIn> {
                       padding: const EdgeInsets.only(bottom: 10, top: 20),
                       child: Text("Sign in",
                           style: TextStyle(
-                            color: Colors.brown,
+                            color: text,
                             fontSize: 28,
                             fontFamily: "Poppins",
                           )),
@@ -82,7 +87,7 @@ class _SignInState extends State<SignIn> {
                         child: Text(
                           "E-mail",
                           style: TextStyle(
-                            color: Colors.brown,
+                            color: text,
                             fontSize: 28,
                             fontFamily: "Poppins",
                             fontStyle: FontStyle.normal,
@@ -96,18 +101,31 @@ class _SignInState extends State<SignIn> {
                       child: TextFormField(
                         controller: _emailController,
                         decoration: InputDecoration(
-                            fillColor: Colors.black,
-                            hoverColor: Colors.brown,
-                            focusColor: Colors.brown,
-                            label: Text("Enter e-mail id"),
-                            hintText: "Email",
-                            //helperText: "xyz@gmail.com",
-                            contentPadding:
-                                EdgeInsets.only(top: 20, bottom: 20, left: 20),
-                            hintStyle: TextStyle(color: Colors.black54),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(30),
-                            )),
+                          //  filled: true,
+                          fillColor: Color.fromARGB(255, 223, 213, 213),
+                          //hoverColor: Colors.white,
+                          focusColor: Colors.brown,
+                          label: Text(
+                            "Enter e-mail id",
+                            style: TextStyle(
+                              color: Color(0xFF8B4513),
+                            ),
+                          ),
+                          hintText: "Email",
+                          //helperText: "xyz@gmail.com",
+                          contentPadding:
+                              EdgeInsets.only(top: 20, bottom: 20, left: 20),
+                          hintStyle: TextStyle(color: Colors.black54),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(30),
+                            borderSide: BorderSide(
+                                color: Color(0xFF8B4513), // Teal
+                                width: 2.0), // Focused border color
+                          ),
+                        ),
                         validator: (textEditingController) {
                           if (textEditingController != null &&
                               textEditingController.isEmpty) {
@@ -119,14 +137,15 @@ class _SignInState extends State<SignIn> {
                       ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.only(bottom: 20, left: 20),
+                      padding:
+                          const EdgeInsets.only(bottom: 20, left: 20, top: 10),
                       child: Align(
                         // or wrap in a container
                         alignment: Alignment.centerLeft,
                         child: Text(
                           "Password",
                           style: TextStyle(
-                            color: Colors.brown,
+                            color: text,
                             fontSize: 28,
                             fontFamily: "Poppins",
                           ),
@@ -136,15 +155,21 @@ class _SignInState extends State<SignIn> {
                     ),
                     Padding(
                       padding: const EdgeInsets.only(
-                          right: 20, left: 20, bottom: 20),
+                          right: 20, left: 20, bottom: 30),
                       child: TextFormField(
                           controller: _passController,
                           obscureText: _obscureText,
                           decoration: InputDecoration(
+                            // focusedBorder: InputBorder.none,
                             fillColor: Colors.black,
                             hoverColor: const Color.fromARGB(255, 233, 62, 0),
                             focusColor: Colors.brown,
-                            label: Text("Enter password"),
+                            label: Text(
+                              "Enter e-mail id",
+                              style: TextStyle(
+                                color: Color(0xFF8B4513),
+                              ),
+                            ),
                             hintText: "Password",
 
                             //helperText: "xyz@gmail.com",
@@ -153,6 +178,12 @@ class _SignInState extends State<SignIn> {
                             hintStyle: TextStyle(color: Colors.black54),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(30),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(30),
+                              borderSide: BorderSide(
+                                  color: Color(0xFF8B4513), // Teal
+                                  width: 2.0), // Focused border color
                             ),
                             suffixIcon: IconButton(
                                 icon: Icon(
@@ -178,7 +209,7 @@ class _SignInState extends State<SignIn> {
                     ),
                     MaterialButton(
                       padding: EdgeInsets.only(
-                          top: 25, bottom: 25, left: 150, right: 150),
+                          top: 20, bottom: 20, left: 130, right: 130),
                       onPressed: () {
                         if (!_formkey.currentState!.validate()) {
                           return;
@@ -195,13 +226,13 @@ class _SignInState extends State<SignIn> {
                         //     MaterialPageRoute(
                         //         builder: (context) => MapScreen(email)));
                       },
-                      color: const Color.fromARGB(255, 92, 13, 81),
+                      color: submit,
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20)),
                       child: Text(
                         "Submit",
                         style: TextStyle(
-                          color: Colors.white70,
+                          color: text,
                           fontFamily: "Poppins",
                           fontSize: 20,
                         ),

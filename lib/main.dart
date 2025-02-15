@@ -1,6 +1,8 @@
+import 'package:dis_manag/data.dart';
 import 'package:dis_manag/mapScreen.dart';
-import 'package:dis_manag/signIn.dart';
+import 'package:dis_manag/SignInPages/signIn.dart';
 import 'package:flutter/material.dart';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 //import 'package:flutter_web_plugins/flutter_web_plugins.dart'; //dont explicitly invlove it
@@ -29,6 +31,6 @@ class Myapp extends StatefulWidget {
 class _MyappState extends State<Myapp> {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(home: SignIn());
+    return MaterialApp(debugShowCheckedModeBanner: false, home: SignIn());
   }
 }

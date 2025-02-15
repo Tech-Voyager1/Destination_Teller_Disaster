@@ -1,3 +1,6 @@
+import 'package:dis_manag/data_screen.dart';
+import 'package:dis_manag/disaster_data.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -21,49 +24,45 @@ class _MapScreenState extends State<MapScreen> {
   String disaster = "";
   bool _disaster = false;
   LatLng? _tempMarker; // Temporary marker position
-  List<Marker> _permanentMarkers = []; //list of marked disasters
+  Set<Marker> _permanentMarkers = {}; //list of marked disasters
   LatLng _currentLocation = LatLng(0, 0);
 
   final MapController _mapController = MapController();
   DraggableScrollableController _draggableController =
       DraggableScrollableController();
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  FirebaseService _FirebaseService = FirebaseService();
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     _reference = FirebaseDatabase.instance
         .ref(widget.user_name.replaceAll('.', '_').replaceAll('\$', '_'));
+    Future.microtask(() async {
+      await _FirebaseService.fetchDisasterData();
+      setState(() {
+        setPermanentMarkers();
+      }); // Rebuild UI after fetching
+    });
     _draggableController = DraggableScrollableController();
     _fetchAndSetLocation();
   }
 
-  void showSheet() {
-    setState(() {
-      _isSheetVisible = true; // Make it visible
-    });
+  // Future<void> _fetchData() async {
+  //   await _FirebaseService
+  //       .fetchDisasterData(); // ✅ This now runs asynchronously
+  //   setState(() {
+  //     setPermanentMarkers();
+  //   }); // ✅ Update UI after data loads
+  // }
 
-    Future.delayed(Duration(milliseconds: 100), () {
-      _draggableController.animateTo(
-        0.7, // Moves to 50% of screen height
-        duration: Duration(milliseconds: 400),
-        curve: Curves.easeOutQuad,
-      );
-    });
-  }
-
-  void hideSheet() {
-    _draggableController
-        .animateTo(
-      0.1, // Moves back down
-      duration: Duration(milliseconds: 300),
-      curve: Curves.easeInOut,
-    )
-        .then((_) {
-      setState(() {
-        _isSheetVisible = false; // Hide after animation
-      });
-    });
+  void setPermanentMarkers() {
+    _permanentMarkers = _FirebaseService.permanentMarkers;
+    print("Inside setpermanent Markers");
+    for (var marker in _FirebaseService.permanentMarkers) {
+      print(
+          "Latitude: ${marker.point.latitude}, Longitude: ${marker.point.longitude}");
+    }
   }
 
   Future<LatLng?> getCurrentLocation() async {
@@ -109,32 +108,10 @@ class _MapScreenState extends State<MapScreen> {
     }
   }
 
-  Future<void> saveLocation(LatLng? tappedLocation, String disaster) async {
-    if (tappedLocation == null) return;
-    String lat = tappedLocation.latitude.toString();
-    String lng = tappedLocation.longitude.toString();
-
-    try {
-      DatabaseEvent event = await _reference.once();
-      int count =
-          event.snapshot.children.length + 1; // Get existing nodes count
-      String locationKey = "location$count"; // Generate dynamic key
-
-      await _reference.child(locationKey).set({
-        "Latitude": lat,
-        "Longitude": lng,
-        "Disaster": disaster,
-      });
-
-      print("Location saved as $locationKey");
-    } catch (e) {
-      print("Error saving location: $e");
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     // showSheet(); //temp
+    // _FirebaseService.fetchDisasterData();
     print(widget.user_name);
     print("Curentlocation is :::::::::::::::::::: $_currentLocation");
     return Scaffold(
@@ -185,7 +162,10 @@ class _MapScreenState extends State<MapScreen> {
                 leading:
                     Icon(Icons.insert_drive_file_outlined, color: Colors.white),
                 title: Text("Data", style: TextStyle(color: Colors.white)),
-                onTap: () {},
+                onTap: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => DataScreen()));
+                },
               ),
             ],
           ),
@@ -248,14 +228,17 @@ class _MapScreenState extends State<MapScreen> {
                       if (_tappedLocation != null)
                         Marker(
                           point: _tappedLocation!,
-                          builder: (ctx) =>
-                              Icon(Icons.location_pin, color: Colors.red),
+                          builder: (ctx) => Icon(Icons.location_pin,
+                              color: const Color.fromARGB(255, 244, 54, 54)),
                         )
                       else if (_currentLocation != LatLng(0, 0))
                         Marker(
                           point: _currentLocation!,
-                          builder: (ctx) => Icon(Icons.location_pin,
-                              color: const Color.fromARGB(255, 54, 216, 244)),
+                          builder: (ctx) => Tooltip(
+                            message: "Current Location",
+                            child: Icon(Icons.location_pin,
+                                color: const Color.fromARGB(255, 54, 216, 244)),
+                          ),
                         ),
                     ],
                   ),
@@ -520,7 +503,11 @@ class _MapScreenState extends State<MapScreen> {
           _permanentMarkers.add(
             Marker(
               point: _tappedLocation!,
-              builder: (ctx) => Image.asset("asset/images/$disaster.png"),
+              //builder: (ctx) => Image.asset("asset/images/$disaster.png"),
+              builder: (ctx) => Tooltip(
+                message: disaster,
+                child: Image.asset("asset/images/$disaster.png"),
+              ),
               // New icon
             ),
           );
@@ -547,5 +534,57 @@ class _MapScreenState extends State<MapScreen> {
         });
       }
     }
+  }
+
+  Future<void> saveLocation(LatLng? tappedLocation, String disaster) async {
+    if (tappedLocation == null) return;
+    String lat = tappedLocation.latitude.toString();
+    String lng = tappedLocation.longitude.toString();
+
+    try {
+      DatabaseEvent event = await _reference.once();
+      int count =
+          event.snapshot.children.length + 1; // Get existing nodes count
+      String locationKey = "location$count"; // Generate dynamic key
+
+      await _reference.child(locationKey).update({
+        "Latitude": lat,
+        "Longitude": lng,
+        "Disaster": disaster,
+        "Timestamp": ServerValue.timestamp // stores server time
+      });
+
+      print("Location saved as $locationKey at ${ServerValue.timestamp}");
+    } catch (e) {
+      print("Error saving location: $e");
+    }
+  }
+
+  void showSheet() {
+    setState(() {
+      _isSheetVisible = true; // Make it visible
+    });
+
+    Future.delayed(Duration(milliseconds: 100), () {
+      _draggableController.animateTo(
+        0.7, // Moves to 50% of screen height
+        duration: Duration(milliseconds: 400),
+        curve: Curves.easeOutQuad,
+      );
+    });
+  }
+
+  void hideSheet() {
+    _draggableController
+        .animateTo(
+      0.1, // Moves back down
+      duration: Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    )
+        .then((_) {
+      setState(() {
+        _isSheetVisible = false; // Hide after animation
+      });
+    });
   }
 }
