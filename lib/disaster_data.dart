@@ -9,13 +9,14 @@ class FirebaseService {
   Set<Marker> permanentMarkers = {};
   List<Map<String, dynamic>> permanentDataList = [];
 
-  Future<void> fetchDisasterData() async {
+  Future<void> fetchDisasterData(String username) async {
     // if (!toBeFetched) return; // 🔥 Prevent duplicate fetches
     print("Inside fetchData...");
 
     try {
       print("Fetching data from Firebase...");
-      DatabaseReference __databaseRef = _databaseRef.child("atal@gmail_com");
+      DatabaseReference __databaseRef = _databaseRef
+          .child(username.replaceAll('.', '_').replaceAll('\$', '_'));
       DatabaseEvent event =
           await __databaseRef.once(); // Fetch latest data once
 
@@ -78,9 +79,9 @@ class FirebaseService {
     }
   }
 
-  Future<void> deleteLocation(String locationKey) async {
+  Future<void> deleteLocation(String locationKey, String username) async {
     try {
-      DatabaseReference __databaseRef = _databaseRef.child("atal@gmail_com");
+      DatabaseReference __databaseRef = _databaseRef.child(username);
       await __databaseRef.child(locationKey).remove(); // Remove from Firebase
       print("$locationKey deleted successfully.");
 

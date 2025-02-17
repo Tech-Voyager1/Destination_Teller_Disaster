@@ -1,5 +1,6 @@
 import 'package:dis_manag/data_screen.dart';
 import 'package:dis_manag/disaster_data.dart';
+import 'package:dis_manag/drawer.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
@@ -8,7 +9,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
 
 class MapScreen extends StatefulWidget {
-  final String user_name;
+  final String? user_name;
   const MapScreen(this.user_name);
 
   @override
@@ -16,6 +17,7 @@ class MapScreen extends StatefulWidget {
 }
 
 class _MapScreenState extends State<MapScreen> {
+  String? username;
   LatLng? _tappedLocation;
 
   bool _isSheetVisible = false;
@@ -36,10 +38,10 @@ class _MapScreenState extends State<MapScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    _reference = FirebaseDatabase.instance
-        .ref(widget.user_name.replaceAll('.', '_').replaceAll('\$', '_'));
+    username = widget.user_name!.replaceAll('.', '_').replaceAll('\$', '_');
+    _reference = FirebaseDatabase.instance.ref(username!);
     Future.microtask(() async {
-      await _FirebaseService.fetchDisasterData();
+      await _FirebaseService.fetchDisasterData(username!);
       setState(() {
         setPermanentMarkers();
       }); // Rebuild UI after fetching
@@ -126,49 +128,8 @@ class _MapScreenState extends State<MapScreen> {
         ),
       ),
       drawer: Drawer(
-        child: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Colors.red, Colors.orangeAccent], // Gradient colors
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-          ),
-          child: ListView(
-            padding: EdgeInsets.zero,
-            children: [
-              DrawerHeader(
-                decoration: BoxDecoration(
-                  color:
-                      Colors.transparent, // Keep transparent to show gradient
-                ),
-                child: Text("DISASTER\nMANAGEMENT",
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 22,
-                        fontFamily: "Poppins")),
-              ),
-              ListTile(
-                leading: Icon(Icons.home, color: Colors.white),
-                title: Text("Home", style: TextStyle(color: Colors.white)),
-                onTap: () {},
-              ),
-              ListTile(
-                leading: Icon(Icons.settings, color: Colors.white),
-                title: Text("Settings", style: TextStyle(color: Colors.white)),
-                onTap: () {},
-              ),
-              ListTile(
-                leading:
-                    Icon(Icons.insert_drive_file_outlined, color: Colors.white),
-                title: Text("Data", style: TextStyle(color: Colors.white)),
-                onTap: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => DataScreen()));
-                },
-              ),
-            ],
-          ),
+        child: Drawer_(
+          username: username,
         ),
       ),
 

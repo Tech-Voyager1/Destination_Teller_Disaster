@@ -1,6 +1,8 @@
 import 'package:dis_manag/data.dart';
+import 'package:dis_manag/login_state.dart';
 import 'package:dis_manag/mapScreen.dart';
 import 'package:dis_manag/SignInPages/signIn.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import 'package:firebase_core/firebase_core.dart';
@@ -18,7 +20,7 @@ Future<void> main() async {
 
   // setUrlStrategy(PathUrlStrategy()); // Fix navigation issues on web
 
-  runApp(const Myapp());
+  runApp(Myapp());
 }
 
 class Myapp extends StatefulWidget {
@@ -29,8 +31,25 @@ class Myapp extends StatefulWidget {
 }
 
 class _MyappState extends State<Myapp> {
+  String? userEmail;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _getCurrentUser();
+  }
+
+  void _getCurrentUser() {
+    User? user = FirebaseAuth.instance.currentUser;
+    setState(() {
+      userEmail = user?.email;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(debugShowCheckedModeBanner: false, home: SignIn());
+    return MaterialApp(
+        debugShowCheckedModeBanner: false, home: LoginState(userEmail));
   }
 }

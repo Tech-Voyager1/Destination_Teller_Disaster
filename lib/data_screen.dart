@@ -5,12 +5,13 @@ import 'package:latlong2/latlong.dart';
 import 'package:dis_manag/disaster_data.dart';
 
 class DataScreen extends StatefulWidget {
+  final String? username;
+  const DataScreen(this.username);
   @override
   State<DataScreen> createState() => _DataScreenState();
 }
 
 class _DataScreenState extends State<DataScreen> {
-  // const ListScreen({super.key});
   FirebaseService _FirebaseService = FirebaseService();
   List<Map<String, dynamic>> _disasterList = [];
 
@@ -20,7 +21,7 @@ class _DataScreenState extends State<DataScreen> {
   void initState() {
     super.initState();
     Future.microtask(() async {
-      await _FirebaseService.fetchDisasterData();
+      await _FirebaseService.fetchDisasterData(widget.username!);
       setState(() {
         setDisasterList();
         _isLoading = false;
@@ -145,7 +146,8 @@ class _DataScreenState extends State<DataScreen> {
             ElevatedButton(
               onPressed: () {
                 print(item['location']);
-                _FirebaseService.deleteLocation(item['location']);
+                _FirebaseService.deleteLocation(
+                    item['location'], widget.username!);
                 Navigator.pop(context);
               },
               style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
