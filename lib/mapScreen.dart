@@ -34,6 +34,8 @@ class _MapScreenState extends State<MapScreen> {
       DraggableScrollableController();
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   FirebaseService _FirebaseService = FirebaseService();
+  final TextEditingController _locationController = TextEditingController();
+
   @override
   void initState() {
     // TODO: implement initState
@@ -141,6 +143,16 @@ class _MapScreenState extends State<MapScreen> {
                 options: MapOptions(
                   center: _currentLocation,
                   zoom: 13,
+
+                  // maxBounds: LatLngBounds(corner1, corner2),
+                  maxZoom: 18,
+                  minZoom: 4,
+                  maxBounds: LatLngBounds(
+                    LatLng(
+                        6.4627, 68.1097), // Southwest corner (Lower boundary)
+                    LatLng(
+                        35.5133, 97.3956), // Northeast corner (Upper boundary)
+                  ),
                   onTap: (tapPosition, point) {
                     setState(
                       () {
@@ -149,24 +161,7 @@ class _MapScreenState extends State<MapScreen> {
                         _mapController.moveAndRotate(_tappedLocation!, 13, 0);
 
                         print(_tappedLocation);
-                        // ScaffoldMessenger.of(context).showSnackBar(
-                        //   SnackBar(
-                        //     content: Center(
-                        //         child: Text(_tappedLocation.toString(),
-                        //             style: TextStyle(
-                        //               color: Colors.white,
-                        //               // fontFamily: "",
-                        //               fontSize: 18,
-                        //             ))),
-                        //     duration: Duration(milliseconds: 1500),
-                        //     padding: EdgeInsets.symmetric(vertical: 25),
-                        //     backgroundColor: Colors.purpleAccent,
-                        //     shape: RoundedRectangleBorder(
-                        //         borderRadius: BorderRadius.only(
-                        //             topLeft: Radius.circular(20),
-                        //             topRight: Radius.circular(20))),
-                        //   ),
-                        // );
+
                         visibility_state = true;
                         showSheet();
                       },
@@ -181,6 +176,7 @@ class _MapScreenState extends State<MapScreen> {
                     urlTemplate:
                         'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                     userAgentPackageName: 'com.example.app', // Required for OSM
+                    maxZoom: 19,
                   ),
                   // if (_tappedLocation != null)
                   MarkerLayer(
@@ -248,181 +244,262 @@ class _MapScreenState extends State<MapScreen> {
 
   Widget dataContainer() {
     print("Inside dataContainer");
+
+    String _locationName = ""; // Temporary variable to store location name
+    String _riskLevel = ""; // Temporary variable to store risk level
+
     return DraggableScrollableSheet(
       controller: _draggableController,
       initialChildSize: 0.1, // Initial height (10% of screen)
       minChildSize: 0.1, // Minimum height when dragged down
       maxChildSize: 0.8, // Maximum height when dragged up
       builder: (context, scrollController) {
-        return Container(
-          decoration: BoxDecoration(
-            color: Color(0xffdcbdf6),
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(30),
-              topRight: Radius.circular(30),
-            ),
-          ),
-          child: ListView(
-            controller: scrollController, // Enables scrollable content
-            padding: EdgeInsets.all(16),
-            children: [
-              SizedBox(
-                height: 50,
-                child: Stack(
-                  children: [
-                    Center(
-                      // Keeps the grey drag handle centered
-                      child: Align(
-                        alignment: Alignment.topCenter,
-                        child: Container(
-                          width: 50,
-                          height: 5,
-                          margin: EdgeInsets.only(bottom: 10), // Space from top
-                          decoration: BoxDecoration(
-                            color: Colors.grey,
-                            borderRadius: BorderRadius.circular(10),
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Container(
+              decoration: BoxDecoration(
+                color: Color(0xffdcbdf6),
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(30),
+                  topRight: Radius.circular(30),
+                ),
+              ),
+              child: ListView(
+                controller: scrollController, // Enables scrollable content
+                padding: EdgeInsets.all(16),
+                children: [
+                  SizedBox(
+                    height: 50,
+                    child: Stack(
+                      children: [
+                        Center(
+                          child: Align(
+                            alignment: Alignment.topCenter,
+                            child: Container(
+                              width: 50,
+                              height: 5,
+                              margin: EdgeInsets.only(bottom: 10),
+                              decoration: BoxDecoration(
+                                color: Colors.grey,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
                           ),
+                        ),
+                        Positioned(
+                          right: 10,
+                          top: 0,
+                          child: IconButton(
+                            icon: Icon(Icons.close, color: Colors.black54),
+                            onPressed: () {
+                              hideSheet();
+                              _disaster = false;
+                              disaster = "";
+                              _locationController.clear();
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Text(
+                    "Location Details",
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: "Poppins",
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  if (_tappedLocation != null)
+                    Text(
+                      "Latitude: ${_tappedLocation!.latitude.toStringAsFixed(7)}\n"
+                      "Longitude: ${_tappedLocation!.longitude.toStringAsFixed(7)}",
+                      style: TextStyle(fontSize: 16, fontFamily: "Poppins"),
+                    ),
+
+                  SizedBox(height: 20),
+                  Text(
+                    "Disaster Details",
+                    style: TextStyle(fontSize: 25, fontFamily: "Poppins"),
+                  ),
+
+                  SizedBox(height: 20),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        _disaster ? disasterTag(disaster) : Text("Add.."),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 15),
+                  Container(
+                    height: 2,
+                    width: 100,
+                    decoration: BoxDecoration(
+                      color: Colors.black45,
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      SizedBox(
+                        width: 140,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              _disaster = true;
+                              disaster = "Landslide";
+                            });
+                          },
+                          child: Text("Landslide"),
+                        ),
+                      ),
+                      SizedBox(
+                        width: 140,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              _disaster = true;
+                              disaster = "Earthquake";
+                            });
+                          },
+                          child: Text("Earthquake"),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      SizedBox(
+                        width: 140,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              _disaster = true;
+                              disaster = "Flood";
+                            });
+                          },
+                          child: Text("Flood"),
+                        ),
+                      ),
+                      SizedBox(
+                        width: 140,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              _disaster = true;
+                              disaster = "Cyclone";
+                            });
+                          },
+                          child: Text("Cyclone"),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 20),
+
+                  // Location Name Input Field
+                  Text(
+                    "Location Name",
+                    style: TextStyle(fontSize: 25, fontFamily: "Poppins"),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 18),
+                    child: TextField(
+                      controller: _locationController,
+                      onChanged: (value) {
+                        setState(() {
+                          _locationName = value;
+                        });
+                      },
+                      decoration: InputDecoration(
+                        hintText: "Enter the location name",
+                        enabledBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(color: Colors.black),
+                        ),
+                        focusedBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(color: Colors.black),
                         ),
                       ),
                     ),
-                    Positioned(
-                      right: 10, // Aligns close icon to the right
-                      top: 0, // Aligns close icon to the top
-                      child: IconButton(
-                          icon: Icon(Icons.close,
-                              color: Colors.black54), // Close button
-                          onPressed: () {
-                            hideSheet();
-                            _disaster = false;
-                            disaster = "";
-                          } // Calls hideSheet() when tapped
-                          ),
-                    ),
-                  ],
-                ),
-              ),
-              Text(
-                "Location Details",
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: "Poppins",
-                ),
-              ),
-              SizedBox(height: 10),
-              if (_tappedLocation != null)
-                Text(
-                  "Latitude: ${_tappedLocation!.latitude.toStringAsFixed(7)}\n"
-                  "Longitude: ${_tappedLocation!.longitude.toStringAsFixed(7)}",
-                  style: TextStyle(fontSize: 16, fontFamily: "Poppins"),
-                ),
-              // Text(
-              //   "Latitude: 1234567\n"
-              //   "Longitude: 1234567",
-              //   style: TextStyle(fontSize: 16, fontFamily: "Poppins"),
-              // ),
-              SizedBox(height: 20),
-              Text(
-                "Disaster Tag",
-                style: TextStyle(fontSize: 28, fontFamily: "Poppins"),
-              ),
+                  ),
 
-              SizedBox(height: 20),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    _disaster ? disasterTag(disaster) : Text("Add.."),
-                    ElevatedButton(
-                      onPressed: () {
-                        permanent_disaster_marker(disaster);
-                      },
-                      child: Text("Confirm"),
-                    )
-                  ],
-                ),
-              ),
-              SizedBox(height: 15),
-              Container(
-                height: 2,
-                width: 100,
-                decoration: BoxDecoration(
-                  color: Colors.black45,
-                ),
-              ),
-              SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  SizedBox(
-                    width: 140,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        setState(() {
-                          _disaster = true;
-                          disaster = "Landslide";
-                        });
-                      },
-                      child: Text("Landslide"),
-                    ),
+                  SizedBox(height: 20),
+
+                  // Disaster Risk Level Selection
+                  Text(
+                    "Risk Level",
+                    style: TextStyle(fontSize: 22, fontFamily: "Poppins"),
                   ),
-                  SizedBox(
-                    width: 140,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        setState(() {
-                          _disaster = true;
-                          disaster = "Earthquake";
-                        });
-                      },
-                      child: Text("Earthquake"),
-                    ),
+                  SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      ChoiceChip(
+                        label: Text("High"),
+                        selected: _riskLevel == "High",
+                        selectedColor: Colors.red,
+                        backgroundColor: Colors.red.shade100,
+                        onSelected: (selected) {
+                          setState(() {
+                            _riskLevel = selected ? "High" : "";
+                          });
+                        },
+                      ),
+                      ChoiceChip(
+                        label: Text("Moderate"),
+                        selected: _riskLevel == "Moderate",
+                        selectedColor: Colors.orange,
+                        backgroundColor: Colors.orange.shade100,
+                        onSelected: (selected) {
+                          setState(() {
+                            _riskLevel = selected ? "Moderate" : "";
+                          });
+                        },
+                      ),
+                      ChoiceChip(
+                        label: Text("Low"),
+                        selected: _riskLevel == "Low",
+                        selectedColor: Colors.yellow,
+                        backgroundColor: Colors.yellow.shade100,
+                        onSelected: (selected) {
+                          setState(() {
+                            _riskLevel = selected ? "Low" : "";
+                          });
+                        },
+                      ),
+                    ],
                   ),
+
+                  SizedBox(height: 20),
+
+                  // Confirm Button (Handles Both Disaster and Location Name)
+                  ElevatedButton(
+                    onPressed: (_locationName.isEmpty ||
+                            disaster.isEmpty ||
+                            _riskLevel.isEmpty)
+                        ? null
+                        : () {
+                            print("Location Name: $_locationName");
+                            print("Disaster: $disaster");
+                            print("Risk Level: $_riskLevel");
+                            permanent_disaster_marker(
+                                disaster, _locationName, _riskLevel);
+                          },
+                    child: Text("Confirm"),
+                  ),
+
+                  SizedBox(height: 100),
                 ],
               ),
-              SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  SizedBox(
-                    width: 140,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        setState(() {
-                          _disaster = true;
-                          disaster = "Flood";
-                        });
-                      },
-                      child: Text("Flood"),
-                    ),
-                  ),
-                  SizedBox(
-                    width: 140,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        setState(() {
-                          _disaster = true;
-                          disaster = "Cyclone";
-                        });
-                      },
-                      child: Text("Cyclone"),
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(
-                height: 100,
-              ),
-
-              //   ElevatedButton(
-              //     onPressed: () {
-              //       // Add your action here
-              //     },
-              //     child: Text("Confirm Location"),
-              //   ),
-            ],
-          ),
+            );
+          },
         );
       },
     );
@@ -457,7 +534,8 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
-  void permanent_disaster_marker(String disaster) {
+  void permanent_disaster_marker(
+      String disaster, String locationName, String riskLevel) {
     if (_disaster) {
       if (_tappedLocation != null) {
         setState(() {
@@ -474,7 +552,7 @@ class _MapScreenState extends State<MapScreen> {
           );
           // _tempMarker = null; // Clear temp marker
           hideSheet();
-          saveLocation(_tappedLocation, disaster);
+          saveLocation(_tappedLocation, disaster, locationName, riskLevel);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
                 content: Center(
@@ -497,21 +575,24 @@ class _MapScreenState extends State<MapScreen> {
     }
   }
 
-  Future<void> saveLocation(LatLng? tappedLocation, String disaster) async {
+  Future<void> saveLocation(LatLng? tappedLocation, String disaster,
+      String locationName, String riskLevel) async {
     if (tappedLocation == null) return;
     String lat = tappedLocation.latitude.toString();
     String lng = tappedLocation.longitude.toString();
 
     try {
       DatabaseEvent event = await _reference.once();
-      int count =
-          event.snapshot.children.length + 1; // Get existing nodes count
-      String locationKey = "location$count"; // Generate dynamic key
+      //   int count =
+      //       event.snapshot.children.length + 1; // Get existing nodes count
+      String locationKey = locationName; // Generate dynamic key
 
       await _reference.child(locationKey).update({
+        // "Name": locationName,
         "Latitude": lat,
         "Longitude": lng,
         "Disaster": disaster,
+        "Risklevel": riskLevel,
         "Timestamp": ServerValue.timestamp // stores server time
       });
 

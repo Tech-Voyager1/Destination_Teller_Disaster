@@ -33,21 +33,23 @@ class FirebaseService {
       data.forEach((key, value) {
         print("Processing key: $key, value: $value");
 
-        int timestamp = value["timestamp"] ?? 0;
+        int timestamp = value["Timestamp"] ?? 0;
         String formattedTime = timestamp != 0
-            ? DateFormat('yyyy-MM-dd HH:mm:ss')
-                .format(DateTime.fromMillisecondsSinceEpoch(timestamp))
+            ? DateFormat('yyyy-MM-dd HH:mm:ss').format(
+                DateTime.fromMillisecondsSinceEpoch(timestamp)) // No *1000
             : "Unknown";
 
         double lat = double.tryParse(value["Latitude"].toString()) ?? 0.0;
         double lng = double.tryParse(value["Longitude"].toString()) ?? 0.0;
         String disaster = value["Disaster"] ?? "Unknown";
+        String riskLevel = value["Risklevel"] ?? "Unknown";
 
         tempDataList.add({
           "location": key,
           "disastertag": disaster,
           "lat": lat,
           "lng": lng,
+          "risklevel": riskLevel,
           "time": formattedTime,
         });
 

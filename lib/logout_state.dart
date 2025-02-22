@@ -86,8 +86,8 @@ class LogoutState {
 
     User? user = _auth.currentUser;
 
-    AuthCredential credential =
-        EmailAuthProvider.credential(email: userEmail!, password: password);
+    AuthCredential credential = EmailAuthProvider.credential(
+        email: userEmail!.replaceAll('_', '.'), password: password);
 
     try {
       // Re-authenticate user
@@ -95,7 +95,8 @@ class LogoutState {
 
       // Remove user data from Firebase Realtime Database
       await _database.ref(userEmail!.replaceAll('.', '_')).remove();
-
+      print(userEmail!);
+      print(password!);
       // Delete user account
       // await user.delete();
 

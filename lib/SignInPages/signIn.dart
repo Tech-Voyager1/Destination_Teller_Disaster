@@ -25,7 +25,7 @@ class _SignInState extends State<SignIn> {
     Color submit = Color(0xffe46b10);
     Color textField = Color.fromARGB(255, 213, 212, 219);
     LinearGradient radial = LinearGradient(
-      colors: [Color(0xfffbb448), Color(0xffe46b10)],
+      colors: [Color(0xfffbb448), Color.fromARGB(255, 228, 16, 147)],
       stops: [0.0, 1.0],
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
@@ -47,9 +47,9 @@ class _SignInState extends State<SignIn> {
                   Padding(
                     padding: const EdgeInsets.only(bottom: 50, left: 20),
                     child: Text(
-                      "Hi there ...",
+                      "TRAVEL ",
                       style: TextStyle(
-                        fontSize: 70,
+                        fontSize: 80,
                         color: Colors.white70,
                         fontFamily: "Poppins",
                       ),

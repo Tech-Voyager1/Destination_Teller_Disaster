@@ -17,54 +17,58 @@ class Drawer_ extends StatelessWidget {
           end: Alignment.bottomRight,
         ),
       ),
-      child: ListView(
-        padding: EdgeInsets.zero,
+      child: Column(
         children: [
-          UserAccountsDrawerHeader(
-            accountName: Text(username ?? "User"),
-            accountEmail: Text(username ?? "user@example.com"),
-            decoration: BoxDecoration(
-              color: Color(0),
+          Expanded(
+            child: ListView(
+              padding: EdgeInsets.zero,
+              children: [
+                UserAccountsDrawerHeader(
+                  accountName: Text(username ?? "User"),
+                  accountEmail: Text(username ?? "user@example.com"),
+                  decoration: BoxDecoration(
+                    color: Color(0),
+                  ),
+                  currentAccountPicture: CircleAvatar(
+                    backgroundColor: Colors.white,
+                    child: Icon(Icons.person, size: 40, color: Colors.blue),
+                  ),
+                ),
+                ListTile(
+                  leading: Icon(Icons.settings, color: Colors.white),
+                  title:
+                      Text("Settings", style: TextStyle(color: Colors.white)),
+                  onTap: () {},
+                ),
+                ListTile(
+                  leading: Icon(Icons.insert_drive_file_outlined,
+                      color: Colors.white),
+                  title: Text("Data", style: TextStyle(color: Colors.white)),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => DataScreen(username),
+                      ),
+                    );
+                  },
+                ),
+              ],
             ),
-            currentAccountPicture: CircleAvatar(
-              backgroundColor: Colors.white,
-              child: Icon(Icons.person, size: 40, color: Colors.blue),
-            ),
           ),
-          ListTile(
-            leading: Icon(Icons.home, color: Colors.white),
-            title: Text("Home", style: TextStyle(color: Colors.white)),
-            onTap: () {},
-          ),
-          ListTile(
-            leading: Icon(Icons.settings, color: Colors.white),
-            title: Text("Settings", style: TextStyle(color: Colors.white)),
-            onTap: () {},
-          ),
-          ListTile(
-            leading:
-                Icon(Icons.insert_drive_file_outlined, color: Colors.white),
-            title: Text("Data", style: TextStyle(color: Colors.white)),
-            onTap: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => DataScreen(username)));
-            },
-          ),
+          Divider(color: Colors.white70), // Optional divider
           ListTile(
             leading:
                 Icon(Icons.power_settings_new_outlined, color: Colors.white),
-            title: Text("Logout",
-                style: TextStyle(color: Colors.white, fontFamily: "")),
+            title: Text("Logout", style: TextStyle(color: Colors.white)),
             onTap: () {
-              // Inside your LoginState or AppDrawer class
               LogoutState(
                 context: context,
                 userEmail: username,
               ).showLogoutDialog();
             },
           ),
+          SizedBox(height: 20), // Add some spacing at the bottom
         ],
       ),
     );
